@@ -1,0 +1,16 @@
+{
+	"required": false,
+	"package": "com.cloudstoragerei.mixin.jei",
+	"compatibilityLevel": "JAVA_25",
+	"plugin": "com.cloudstoragerei.mixin.jei.CloudStorageJeiMixinPlugin",
+	"client": [
+		"IngredientListOverlayMixin",
+		"BookmarkOverlayMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

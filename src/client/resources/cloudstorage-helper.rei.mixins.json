@@ -1,0 +1,15 @@
+{
+	"required": false,
+	"package": "com.cloudstoragerei.mixin.rei",
+	"compatibilityLevel": "JAVA_25",
+	"plugin": "com.cloudstoragerei.mixin.rei.CloudStorageReiMixinPlugin",
+	"client": [
+		"REIRuntimeImplMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
