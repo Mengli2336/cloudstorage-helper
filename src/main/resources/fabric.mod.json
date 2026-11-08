@@ -5,7 +5,7 @@
 	"name": "Cloud Storage Helper",
 	"description": "梦幻之屿服务器云仓辅助模组。在 REI/JEI 中显示云仓数量并支持快捷取出，支持自定义数量、潜影盒和书签数量，以及通过世界准星从方块、掉落物和 Litematica 投影快速取物；配置与热键基于 MaLiLib。",
 	"authors": [
-		"Meng_li2336"
+		"Mengli2336"
 	],
 	"license": "CC0-1.0",
 	"icon": "assets/cloudstorage-helper/icon.png",
