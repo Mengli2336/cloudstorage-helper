@@ -1,5 +1,7 @@
 package com.cloudstoragerei.core;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,9 +21,12 @@ import net.minecraft.resources.Identifier;
 public final class CloudStorageManager {
 	private static final CloudStorageManager INSTANCE = new CloudStorageManager();
 	private static final int INITIAL_UPDATE_DELAY_TICKS = 50;
+	private static final int BOX_COMMAND_INTERVAL_TICKS = 4;
 
 	private final Map<String, Long> items = new HashMap<>();
+	private final Deque<String> pendingBoxTakeCommands = new ArrayDeque<>();
 	private int initialUpdateCountdown = -1;
+	private int boxCommandCooldown;
 	private boolean initialized;
 
 	private CloudStorageManager() {
@@ -43,9 +48,11 @@ public final class CloudStorageManager {
 		);
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			this.initialUpdateCountdown = -1;
+			this.clearPendingBoxTakeCommands();
 			this.clear();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(this::tickInitialUpdate);
+		ClientTickEvents.END_CLIENT_TICK.register(this::tickPendingBoxTakeCommands);
 	}
 
 	private boolean handleGameMessage(String messageText) {
@@ -153,7 +160,7 @@ public final class CloudStorageManager {
 			}
 		}
 
-		sendTakeCommand(client, "ci getbox", identifier, amount);
+		this.enqueueBoxTakeCommands(identifier, amount);
 	}
 
 	private void applyOptimisticTake(String itemId, int amount) {
@@ -198,6 +205,38 @@ public final class CloudStorageManager {
 				activeConnection.sendCommand(command + " " + itemId.getPath() + " " + amount);
 			}
 		});
+	}
+
+	private void enqueueBoxTakeCommands(Identifier itemId, int amount) {
+		// The server ignores an amount argument for getbox: each command takes exactly one box.
+		for (int i = 0; i < amount; i++) {
+			this.pendingBoxTakeCommands.addLast(itemId.getPath());
+		}
+	}
+
+	private void tickPendingBoxTakeCommands(Minecraft client) {
+		if (this.boxCommandCooldown > 0) {
+			this.boxCommandCooldown--;
+		}
+
+		if (this.pendingBoxTakeCommands.isEmpty() || this.boxCommandCooldown > 0) {
+			return;
+		}
+
+		ClientPacketListener connection = readyConnection(client);
+
+		if (connection == null) {
+			return;
+		}
+
+		// The server rate-limits commands: send at most one getbox command every four ticks (5 per second).
+		connection.sendCommand("ci getbox " + this.pendingBoxTakeCommands.pollFirst());
+		this.boxCommandCooldown = BOX_COMMAND_INTERVAL_TICKS;
+	}
+
+	private void clearPendingBoxTakeCommands() {
+		this.pendingBoxTakeCommands.clear();
+		this.boxCommandCooldown = 0;
 	}
 
 	public void requestUpdate() {

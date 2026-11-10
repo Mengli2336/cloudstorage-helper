@@ -52,15 +52,6 @@ class CloudStorageCoreTest {
 	}
 
 	@Test
-	void convertsLegacyMouseSettingsToMaLiLibHotkeys() {
-		assertEquals("LEFT_SHIFT,BUTTON_1", CloudStorageLegacyHotkeys.create("SHIFT", "LEFT"));
-		assertEquals("LEFT_CONTROL,BUTTON_2", CloudStorageLegacyHotkeys.create("CTRL", "RIGHT"));
-		assertEquals("LEFT_ALT,BUTTON_1", CloudStorageLegacyHotkeys.create("ALT", "LEFT"));
-		assertEquals("BUTTON_3", CloudStorageLegacyHotkeys.create("NONE", "MIDDLE"));
-		assertEquals("LEFT_CONTROL,BUTTON_3", CloudStorageLegacyHotkeys.openAmount("MIDDLE"));
-	}
-
-	@Test
 	void clampsQuickTakeAmountToKnownCloudCount() {
 		assertEquals(64, CloudStorageMath.clampTakeAmount(64, 100));
 		assertEquals(23, CloudStorageMath.clampTakeAmount(64, 23));

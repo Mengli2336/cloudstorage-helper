@@ -65,7 +65,7 @@
 
 ## 配置
 
-配置文件位于 `config/cloudstorage-helper.json`。首次启动时会从 `config/cloudstorage.json` 导入设置；若不存在，则尝试读取旧版 Cloth Config 配置 `config/cloudstorage-rei.json`。原有配置文件会保留为备份。
+配置文件位于 `config/cloudstorage-helper.json`。
 
 REI 配方界面由自定义数量界面提供支持：其返回状态与 REI 的导航栈相互隔离，按 Escape 返回配方，使用 REI 的后退操作可回到原来的容器界面。
 

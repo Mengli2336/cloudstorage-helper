@@ -11,7 +11,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import com.cloudstoragerei.CloudStorageModClient;
-import com.cloudstoragerei.core.CloudStorageLegacyHotkeys;
 
 import fi.dy.masa.malilib.config.ConfigUtils;
 import fi.dy.masa.malilib.config.IConfigBase;
@@ -28,9 +27,7 @@ import fi.dy.masa.malilib.util.data.json.JsonUtils;
 public final class CloudStorageConfigs implements IConfigHandler {
 	private static final String CONFIG_KEY = "config.cloudstorage-helper";
 	private static final String CONFIG_FILE_NAME = "cloudstorage-helper.json";
-	private static final String PREVIOUS_CONFIG_FILE_NAME = "cloudstorage.json";
-	private static final String LEGACY_CONFIG_FILE_NAME = "cloudstorage-rei.json";
-	private static final int CONFIG_VERSION = 10;
+	private static final int CONFIG_VERSION = 1;
 	private static final CloudStorageConfigs INSTANCE = new CloudStorageConfigs();
 
 	private CloudStorageConfigs() {
@@ -155,33 +152,20 @@ public final class CloudStorageConfigs implements IConfigHandler {
 
 	@Override
 	public void load() {
-		Path configDirectory = FileUtils.getConfigDirectory();
-		Path configFile = configDirectory.resolve(CONFIG_FILE_NAME);
+		Path configFile = FileUtils.getConfigDirectory().resolve(CONFIG_FILE_NAME);
+
+		if (!Files.isRegularFile(configFile) || !Files.isReadable(configFile)) {
+			return;
+		}
 
 		try {
-			if (Files.isRegularFile(configFile) && Files.isReadable(configFile)) {
-				readConfig(configFile, false);
-			} else {
-				Path previousConfigFile = configDirectory.resolve(PREVIOUS_CONFIG_FILE_NAME);
-				boolean migrated;
-
-				if (Files.isRegularFile(previousConfigFile) && Files.isReadable(previousConfigFile)) {
-					readConfig(previousConfigFile, true);
-					migrated = true;
-				} else {
-					migrated = migrateLegacyConfig(configDirectory.resolve(LEGACY_CONFIG_FILE_NAME));
-				}
-
-				if (migrated && Files.notExists(configFile)) {
-					this.save();
-				}
-			}
+			readConfig(configFile);
 		} catch (Exception exception) {
 			CloudStorageModClient.LOGGER.warn("Failed to load cloud storage config from '{}'", configFile, exception);
 		}
 	}
 
-	private static void readConfig(Path configFile, boolean migrating) throws IOException {
+	private static void readConfig(Path configFile) throws IOException {
 		try (Reader reader = Files.newBufferedReader(configFile)) {
 			JsonElement element = JsonParser.parseReader(reader);
 
@@ -190,244 +174,10 @@ public final class CloudStorageConfigs implements IConfigHandler {
 			}
 
 			JsonObject root = element.getAsJsonObject();
-			int version = getInt(root, "config_version", 0);
 			ConfigUtils.readConfigBase(root, "Display", Display.OPTIONS);
 			ConfigUtils.readConfigBase(root, "Interaction", Interaction.OPTIONS);
 			ConfigUtils.readConfigBase(root, "Compatibility", Compatibility.OPTIONS);
 			ConfigUtils.readHotkeys(root, "Hotkeys", Hotkeys.HOTKEY_LIST);
-
-			if (version < 2) {
-				migrateVersionOneMouseHotkeys(root);
-			}
-
-			if (version < 4) {
-				migrateVersionThreeQuickTakeHotkeys(root);
-			}
-
-			if (version < 9) {
-				migrateVersionEightDefaultHotkeys(root);
-			}
-
-			if (version < 10) {
-				migrateVersionNineDefaultHotkeys(root);
-			}
-
-			boolean resolvedHotkeyConflict = resolveOpenAmountConflict();
-
-			if (version < CONFIG_VERSION || migrating || resolvedHotkeyConflict) {
-				INSTANCE.save();
-			}
-		}
-	}
-
-	private static boolean migrateLegacyConfig(Path legacyFile) {
-		if (!Files.isRegularFile(legacyFile) || !Files.isReadable(legacyFile)) {
-			return false;
-		}
-
-		try (Reader reader = Files.newBufferedReader(legacyFile)) {
-			JsonElement element = JsonParser.parseReader(reader);
-
-			if (!element.isJsonObject()) {
-				return false;
-			}
-
-			JsonObject root = element.getAsJsonObject();
-			copyLegacyValue(root, "enableRender", Display.ENABLE_RENDER);
-			copyLegacyValue(root, "fontScale", Display.FONT_SCALE);
-			copyLegacyValue(root, "xOffset", Display.X_OFFSET);
-			copyLegacyValue(root, "yOffset", Display.Y_OFFSET);
-			copyLegacyValue(root, "showCiMessages", Display.SHOW_CI_MESSAGES);
-			copyLegacyValue(root, "lastInputAmount", Interaction.LAST_INPUT_AMOUNT);
-			migrateMouseHotkeys(
-					new JsonObject(),
-					getString(root, "modifierKey", "SHIFT"),
-					getString(root, "takeOneMouse", "LEFT"),
-					getString(root, "takeStackMouse", "RIGHT"),
-					getString(root, "openGuiMouse", "MIDDLE")
-			);
-			CloudStorageModClient.LOGGER.info("Migrated legacy cloud storage config from '{}'", legacyFile);
-			return true;
-		} catch (Exception exception) {
-			CloudStorageModClient.LOGGER.warn("Failed to migrate legacy cloud storage config from '{}'", legacyFile, exception);
-			return false;
-		}
-	}
-
-	private static void migrateVersionOneMouseHotkeys(JsonObject root) {
-		JsonElement interactionElement = root.get("Interaction");
-
-		if (interactionElement == null || !interactionElement.isJsonObject()) {
-			return;
-		}
-
-		JsonObject interaction = interactionElement.getAsJsonObject();
-		migrateMouseHotkeys(
-				root,
-				getString(interaction, "modifierKey", "SHIFT"),
-				getString(interaction, "takeOneMouse", "LEFT"),
-				getString(interaction, "takeStackMouse", "RIGHT"),
-				getString(interaction, "openGuiMouse", "MIDDLE")
-		);
-	}
-
-	private static void migrateMouseHotkeys(
-			JsonObject root,
-			String modifier,
-			String takeOneMouse,
-			String takeStackMouse,
-			String openAmountMouse
-	) {
-		setHotkeyIfMissing(
-				root,
-				Hotkeys.TAKE_ONE,
-				CloudStorageLegacyHotkeys.create(modifier, takeOneMouse)
-		);
-		setHotkeyIfMissing(
-				root,
-				Hotkeys.TAKE_STACK,
-				CloudStorageLegacyHotkeys.create(modifier, takeStackMouse)
-		);
-		setHotkeyIfMissing(
-				root,
-				Hotkeys.OPEN_AMOUNT,
-				CloudStorageLegacyHotkeys.openAmount(openAmountMouse)
-		);
-	}
-
-	private static void migrateVersionThreeQuickTakeHotkeys(JsonObject root) {
-		JsonElement hotkeysElement = root.get("Hotkeys");
-
-		if (hotkeysElement == null || !hotkeysElement.isJsonObject()) {
-			return;
-		}
-
-		JsonElement openAmountElement = hotkeysElement.getAsJsonObject().get("openAmount");
-
-		if (openAmountElement == null) {
-			return;
-		}
-
-		String storedValue;
-
-		if (openAmountElement.isJsonObject()) {
-			JsonElement keysElement = openAmountElement.getAsJsonObject().get("keys");
-			storedValue = keysElement != null && keysElement.isJsonPrimitive()
-					? keysElement.getAsString()
-					: "";
-		} else {
-			storedValue = openAmountElement.isJsonPrimitive() ? openAmountElement.getAsString() : "";
-		}
-
-		if ("BUTTON_3".equals(storedValue)) {
-			Hotkeys.OPEN_AMOUNT.getKeybind().setValueFromString("BUTTON_3");
-		}
-	}
-
-	private static void migrateVersionEightDefaultHotkeys(JsonObject root) {
-		migrateHotkeyIfMatching(
-				root,
-				Hotkeys.QUICK_TAKE,
-				"BUTTON_3",
-				"LEFT_SHIFT,BUTTON_3"
-		);
-		migrateHotkeyIfMatching(
-				root,
-				Hotkeys.OPEN_AMOUNT,
-				"LEFT_CONTROL,BUTTON_3",
-				"BUTTON_3"
-		);
-	}
-
-	private static void migrateVersionNineDefaultHotkeys(JsonObject root) {
-		migrateHotkeyIfMatching(
-				root,
-				Hotkeys.TAKE_STACK,
-				"BUTTON_3",
-				"LEFT_SHIFT,BUTTON_2"
-		);
-		migrateHotkeyIfMatching(
-				root,
-				Hotkeys.OPEN_AMOUNT,
-				"LEFT_CONTROL,BUTTON_3",
-				"BUTTON_3"
-		);
-	}
-
-	private static void migrateHotkeyIfMatching(
-			JsonObject root,
-			ConfigHotkey hotkey,
-			String oldValue,
-			String newValue
-	) {
-		JsonElement hotkeysElement = root.get("Hotkeys");
-
-		if (hotkeysElement == null || !hotkeysElement.isJsonObject()) {
-			return;
-		}
-
-		JsonElement hotkeyElement = hotkeysElement.getAsJsonObject().get(hotkey.getName());
-
-		if (hotkeyElement == null) {
-			return;
-		}
-
-		String storedValue;
-
-		if (hotkeyElement.isJsonObject()) {
-			JsonElement keysElement = hotkeyElement.getAsJsonObject().get("keys");
-			storedValue = keysElement != null && keysElement.isJsonPrimitive()
-					? keysElement.getAsString()
-					: "";
-		} else {
-			storedValue = hotkeyElement.isJsonPrimitive() ? hotkeyElement.getAsString() : "";
-		}
-
-		if (oldValue.equals(storedValue)) {
-			hotkey.getKeybind().setValueFromString(newValue);
-		}
-	}
-
-	private static boolean resolveOpenAmountConflict() {
-		if (Hotkeys.OPEN_AMOUNT.getKeybind().getStringValue()
-				.equals(Hotkeys.QUICK_TAKE.getKeybind().getStringValue())) {
-			Hotkeys.QUICK_TAKE.getKeybind().setValueFromString("LEFT_SHIFT,BUTTON_3");
-			return true;
-		}
-
-		return false;
-	}
-
-	private static void setHotkeyIfMissing(JsonObject root, ConfigHotkey hotkey, String value) {
-		JsonElement hotkeysElement = root.get("Hotkeys");
-		boolean alreadyConfigured = hotkeysElement != null
-				&& hotkeysElement.isJsonObject()
-				&& hotkeysElement.getAsJsonObject().has(hotkey.getName());
-
-		if (value != null && !alreadyConfigured) {
-			hotkey.getKeybind().setValueFromString(value);
-		}
-	}
-
-	private static void copyLegacyValue(JsonObject root, String name, IConfigBase option) {
-		if (root.has(name)) {
-			option.setValueFromJsonElement(root.get(name));
-			option.checkIfClean();
-		}
-	}
-
-	private static String getString(JsonObject root, String name, String fallback) {
-		JsonElement element = root.get(name);
-		return element != null && element.isJsonPrimitive() ? element.getAsString() : fallback;
-	}
-
-	private static int getInt(JsonObject root, String name, int fallback) {
-		JsonElement element = root.get(name);
-
-		try {
-			return element != null && element.isJsonPrimitive() ? element.getAsInt() : fallback;
-		} catch (NumberFormatException ignored) {
-			return fallback;
 		}
 	}
 
