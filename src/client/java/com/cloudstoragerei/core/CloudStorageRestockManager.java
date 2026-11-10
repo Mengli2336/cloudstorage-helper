@@ -1,6 +1,5 @@
 package com.cloudstoragerei.core;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import com.cloudstoragerei.config.CloudStorageConfigs;
@@ -23,9 +22,7 @@ import net.minecraft.world.item.ItemStack;
  */
 public final class CloudStorageRestockManager {
 	private static final CloudStorageRestockManager INSTANCE = new CloudStorageRestockManager();
-	private static final int ITEM_COOLDOWN_TICKS = 60;
 
-	private final Map<String, Integer> cooldowns = new HashMap<>();
 	private int scanCountdown;
 	private boolean bagFullPaused;
 	private boolean initialized;
@@ -52,23 +49,20 @@ public final class CloudStorageRestockManager {
 	}
 
 	/**
-	 * Runs one restock cycle immediately, ignoring the scan interval, the enable
-	 * switch and cooldowns. Used by the "restock now" button.
+	 * Runs one restock cycle immediately, ignoring the scan interval and the
+	 * enable switch. Used by the "restock now" button.
 	 */
 	public void restockNow() {
 		this.scanCountdown = this.scanInterval();
-		this.runCycle(true);
+		this.runCycle();
 	}
 
 	private void reset() {
-		this.cooldowns.clear();
 		this.scanCountdown = 0;
 		this.bagFullPaused = false;
 	}
 
 	private void tick(Minecraft client) {
-		this.tickCooldowns();
-
 		if (client.player == null || client.level == null) {
 			return;
 		}
@@ -84,19 +78,14 @@ public final class CloudStorageRestockManager {
 		}
 
 		this.scanCountdown = this.scanInterval();
-		this.runCycle(false);
-	}
-
-	private void tickCooldowns() {
-		this.cooldowns.replaceAll((itemId, ticks) -> ticks - 1);
-		this.cooldowns.values().removeIf(ticks -> ticks <= 0);
+		this.runCycle();
 	}
 
 	private int scanInterval() {
 		return CloudStorageConfigs.Restock.SCAN_INTERVAL.getIntegerValue();
 	}
 
-	private void runCycle(boolean manual) {
+	private void runCycle() {
 		Player player = Minecraft.getInstance().player;
 
 		if (player == null) {
@@ -112,7 +101,7 @@ public final class CloudStorageRestockManager {
 			ItemSettings settings = entry.getValue();
 			Item item = getItem(itemId);
 
-			if (item == null || (!manual && this.cooldowns.containsKey(itemId))) {
+			if (item == null) {
 				continue;
 			}
 
@@ -143,7 +132,6 @@ public final class CloudStorageRestockManager {
 			}
 
 			manager.takeItem(itemId, amount);
-			this.cooldowns.put(itemId, ITEM_COOLDOWN_TICKS);
 		}
 
 		this.bagFullPaused = bagFull;
