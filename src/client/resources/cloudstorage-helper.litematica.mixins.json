@@ -1,0 +1,15 @@
+{
+	"required": false,
+	"package": "com.cloudstoragerei.mixin.litematica",
+	"compatibilityLevel": "JAVA_25",
+	"plugin": "com.cloudstoragerei.mixin.litematica.CloudStorageLitematicaMixinPlugin",
+	"client": [
+		"WidgetMaterialListEntryMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}

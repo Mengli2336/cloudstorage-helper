@@ -73,9 +73,9 @@
 	"config.cloudstorage-helper.prettyName.restockPanelY": "Restock Panel Y Offset",
 	"config.cloudstorage-helper.comment.restockPanelY": "Vertical offset from the bottom-left anchor, positive moves down.",
 
-	"config.cloudstorage-helper.name.lastInputAmount": "Last Input Amount",
-	"config.cloudstorage-helper.prettyName.lastInputAmount": "Last Input Amount",
-	"config.cloudstorage-helper.comment.lastInputAmount": "The amount preselected when opening the custom take screen.",
+	"config.cloudstorage-helper.name.lastInputAmount": "Middle Click Default Amount",
+	"config.cloudstorage-helper.prettyName.lastInputAmount": "Middle Click Default Amount",
+	"config.cloudstorage-helper.comment.lastInputAmount": "The amount prefilled and selected when the take screen is opened with the middle mouse button.",
 
 	"config.cloudstorage-helper.name.reiEnabled": "Enable REI Integration",
 	"config.cloudstorage-helper.prettyName.reiEnabled": "Enable REI Integration",
@@ -86,6 +86,9 @@
 	"config.cloudstorage-helper.name.litematicaEnabled": "Enable Litematica Compatibility",
 	"config.cloudstorage-helper.prettyName.litematicaEnabled": "Enable Litematica Compatibility",
 	"config.cloudstorage-helper.comment.litematicaEnabled": "Allows quick-taking items for the Litematica schematic block under the crosshair.",
+	"config.cloudstorage-helper.name.litematicaMaterialListCloud": "Cloud Counts in Material List",
+	"config.cloudstorage-helper.prettyName.litematicaMaterialListCloud": "Cloud Counts in Material List",
+	"config.cloudstorage-helper.comment.litematicaMaterialListCloud": "Adds cloud and missing columns to the Litematica material list, where missing = total required - cloud.",
 
 	"config.cloudstorage-helper.name.refresh": "Refresh Cloud Cache",
 	"config.cloudstorage-helper.prettyName.refresh": "Refresh Cloud Cache",
@@ -114,5 +117,7 @@
 	"config.cloudstorage-helper.name.quickTake": "World Crosshair: Quick Take",
 	"config.cloudstorage-helper.prettyName.quickTake": "World Crosshair: Quick Take",
 	"config.cloudstorage-helper.translatedName.quickTake": "World Crosshair: Quick Take",
-	"config.cloudstorage-helper.comment.quickTake": "Action: quickly takes items for the dropped item, block, or Litematica schematic block under the screen-center crosshair.\nDefault key: Shift + middle mouse.\nIf fewer items are stored, all available items are taken."
+	"config.cloudstorage-helper.comment.quickTake": "Action: quickly takes items for the dropped item, block, or Litematica schematic block under the screen-center crosshair.\nDefault key: Shift + middle mouse.\nIf fewer items are stored, all available items are taken.",
+	"cloudstorage-helper.material_list.cloud": "Cloud",
+	"cloudstorage-helper.material_list.missing": "Missing"
 }

@@ -32,6 +32,10 @@
 		{
 			"config": "cloudstorage-helper.rei.mixins.json",
 			"environment": "client"
+		},
+		{
+			"config": "cloudstorage-helper.litematica.mixins.json",
+			"environment": "client"
 		}
 	],
 	"depends": {

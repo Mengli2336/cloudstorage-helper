@@ -73,9 +73,9 @@
 	"config.cloudstorage-helper.prettyName.restockPanelY": "补货面板 Y 偏移",
 	"config.cloudstorage-helper.comment.restockPanelY": "在左下角位置基础上的垂直偏移，正数向下。",
 
-	"config.cloudstorage-helper.name.lastInputAmount": "上次输入数量",
-	"config.cloudstorage-helper.prettyName.lastInputAmount": "上次输入数量",
-	"config.cloudstorage-helper.comment.lastInputAmount": "自定义取出界面默认填入并选中的数量。",
+	"config.cloudstorage-helper.name.lastInputAmount": "中键取出默认数量",
+	"config.cloudstorage-helper.prettyName.lastInputAmount": "中键取出默认数量",
+	"config.cloudstorage-helper.comment.lastInputAmount": "用中键打开取出界面时，默认填入并选中的数量。",
 
 	"config.cloudstorage-helper.name.reiEnabled": "启用 REI 集成",
 	"config.cloudstorage-helper.prettyName.reiEnabled": "启用 REI 集成",
@@ -86,6 +86,9 @@
 	"config.cloudstorage-helper.name.litematicaEnabled": "启用 Litematica 投影兼容",
 	"config.cloudstorage-helper.prettyName.litematicaEnabled": "启用 Litematica 投影兼容",
 	"config.cloudstorage-helper.comment.litematicaEnabled": "允许快速取出准星指向的 Litematica 投影方块对应物品。",
+	"config.cloudstorage-helper.name.litematicaMaterialListCloud": "投影材料列表显示云仓",
+	"config.cloudstorage-helper.prettyName.litematicaMaterialListCloud": "投影材料列表显示云仓",
+	"config.cloudstorage-helper.comment.litematicaMaterialListCloud": "在 Litematica 材料列表右侧增加云仓与缺口两列，缺口 = 总需求 − 云仓。",
 
 	"config.cloudstorage-helper.name.refresh": "刷新云仓缓存",
 	"config.cloudstorage-helper.prettyName.refresh": "刷新云仓缓存",
@@ -114,5 +117,7 @@
 	"config.cloudstorage-helper.name.quickTake": "世界准星：快速取出一组",
 	"config.cloudstorage-helper.prettyName.quickTake": "世界准星：快速取出一组",
 	"config.cloudstorage-helper.translatedName.quickTake": "世界准星：快速取出一组",
-	"config.cloudstorage-helper.comment.quickTake": "作用：对屏幕中心准星指向的掉落物、方块或 Litematica 投影方块快速取出物品。\n默认按键：Shift + 鼠标中键。\n云仓不足一组时取出全部已存数量。"
+	"config.cloudstorage-helper.comment.quickTake": "作用：对屏幕中心准星指向的掉落物、方块或 Litematica 投影方块快速取出物品。\n默认按键：Shift + 鼠标中键。\n云仓不足一组时取出全部已存数量。",
+	"cloudstorage-helper.material_list.cloud": "云仓",
+	"cloudstorage-helper.material_list.missing": "缺口"
 }

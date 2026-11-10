@@ -89,7 +89,7 @@ public final class CustomAmountScreen extends Screen {
 
 	private void openRestockSettings() {
 		if (this.minecraft != null) {
-			this.minecraft.setScreen(new RestockSettingsScreen(this, this.itemId, this.itemName));
+			this.minecraft.setScreen(new RestockSettingsScreen(this, this.parent, this.itemId, this.itemName));
 		}
 	}
 

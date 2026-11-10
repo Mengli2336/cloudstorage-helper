@@ -176,11 +176,14 @@ public final class CloudStorageConfigs implements IConfigHandler {
 				new ConfigBoolean("jeiEnabled", true).apply(CONFIG_KEY);
 		public static final ConfigBoolean LITEMATICA_ENABLED =
 				new ConfigBoolean("litematicaEnabled", true).apply(CONFIG_KEY);
+		public static final ConfigBoolean MATERIAL_LIST_CLOUD =
+				new ConfigBoolean("litematicaMaterialListCloud", true).apply(CONFIG_KEY);
 
 		public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
 				REI_ENABLED,
 				JEI_ENABLED,
-				LITEMATICA_ENABLED
+				LITEMATICA_ENABLED,
+				MATERIAL_LIST_CLOUD
 		);
 	}
 
@@ -189,16 +192,18 @@ public final class CloudStorageConfigs implements IConfigHandler {
 				KeybindSettings.Context.GUI,
 				KeyAction.PRESS,
 				false,
+				false,
 				true,
-				true,
+				false,
 				true
 		);
 		private static final KeybindSettings ANY_ACTION_SETTINGS = KeybindSettings.create(
 				KeybindSettings.Context.ANY,
 				KeyAction.PRESS,
 				false,
+				false,
 				true,
-				true,
+				false,
 				true
 		);
 		public static final ConfigHotkey REFRESH = new ConfigHotkey(
@@ -233,7 +238,7 @@ public final class CloudStorageConfigs implements IConfigHandler {
 		).apply(CONFIG_KEY);
 		public static final ConfigHotkey QUICK_TAKE = new ConfigHotkey(
 				"quickTake",
-				"LEFT_SHIFT,BUTTON_3",
+				"BUTTON_4",
 				ANY_ACTION_SETTINGS
 		).apply(CONFIG_KEY);
 

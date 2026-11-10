@@ -82,7 +82,8 @@
   - `config/CloudStorageConfigs.java`：配置加载与保存（当前 `CONFIG_VERSION = 3`，v3 新增补货面板缩放与偏移）。
   - `config/CloudStorageHotkeys.java`、`config/CloudStorageConfigGui.java`：MaLiLib 热键与配置界面。
 - `src/client/java/com/cloudstoragerei/compat/`：可选模组适配，全部通过 `FabricLoader.isModLoaded` 门控。
-- `src/client/resources/*.mixins.json`：REI / JEI 兼容 mixin，由 `plugin` 字段做加载检查，均为 `"required": false`。
+- `src/client/java/com/cloudstoragerei/mixin/litematica/WidgetMaterialListEntryMixin.java`：在 Litematica 材料列表行尾追加「云仓」「缺口」两列（缺口 = 总需求 − 云仓），开关为 `Compatibility.MATERIAL_LIST_CLOUD`。
+- `src/client/resources/*.mixins.json`：REI / JEI / Litematica 兼容 mixin，由 `plugin` 字段做加载检查，均为 `"required": false`。Litematica 的 mixin 依赖其内部字段与方法名，Litematica 升级后可能失效（失效时静默跳过，不影响其他功能）。
 
 数据流：
 

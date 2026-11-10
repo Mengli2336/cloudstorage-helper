@@ -4,6 +4,7 @@ import com.cloudstoragerei.config.CloudStorageConfigs;
 import com.cloudstoragerei.config.CloudStorageConfigs.Restock;
 import com.cloudstoragerei.config.CloudStorageConfigs.Restock.ItemSettings;
 import com.cloudstoragerei.core.CloudStorageRestockManager;
+import com.cloudstoragerei.input.CloudStorageInteractionHandler;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -18,6 +19,7 @@ import net.minecraft.resources.Identifier;
  */
 public final class RestockSettingsScreen extends Screen {
 	private final Screen parent;
+	private final Screen doneTarget;
 	private final String itemId;
 	private final String itemName;
 	private final int maxStackSize;
@@ -28,9 +30,10 @@ public final class RestockSettingsScreen extends Screen {
 	private boolean itemEnabled;
 	private Component status = Component.empty();
 
-	public RestockSettingsScreen(Screen parent, String itemId, String itemName) {
+	public RestockSettingsScreen(Screen parent, Screen doneTarget, String itemId, String itemName) {
 		super(Component.translatable("screen.cloudstorage-helper.restock.title"));
 		this.parent = parent;
+		this.doneTarget = doneTarget;
 		this.itemId = itemId;
 		this.itemName = itemName;
 		this.maxStackSize = getMaxStackSize(itemId);
@@ -75,10 +78,16 @@ public final class RestockSettingsScreen extends Screen {
 		this.addRenderableWidget(this.restockNowButton);
 
 		this.addRenderableWidget(Button.builder(
-						Component.translatable("gui.done"),
-						button -> this.onClose()
+						Component.translatable("gui.back"),
+						button -> this.onBack()
 				)
-				.bounds(centerX - 105, top + 102, 210, 20)
+				.bounds(centerX - 105, top + 102, 100, 20)
+				.build());
+		this.addRenderableWidget(Button.builder(
+						Component.translatable("gui.done"),
+						button -> this.onDone()
+				)
+				.bounds(centerX + 5, top + 102, 100, 20)
 				.build());
 	}
 
@@ -109,6 +118,22 @@ public final class RestockSettingsScreen extends Screen {
 	public void onClose() {
 		this.commit();
 		this.minecraft.setScreen(this.parent);
+	}
+
+	/**
+	 * Returns to the previous screen (the amount screen this settings screen was opened from).
+	 */
+	private void onBack() {
+		this.onClose();
+	}
+
+	/**
+	 * Commits and jumps straight back to the container screen, skipping the amount screen.
+	 */
+	private void onDone() {
+		this.commit();
+		CloudStorageInteractionHandler.suppressClicksAfterClosing();
+		this.minecraft.setScreen(this.doneTarget != null ? this.doneTarget : this.parent);
 	}
 
 	private void toggleEnabled() {
