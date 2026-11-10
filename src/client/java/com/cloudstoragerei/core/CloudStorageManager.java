@@ -21,12 +21,12 @@ import net.minecraft.resources.Identifier;
 public final class CloudStorageManager {
 	private static final CloudStorageManager INSTANCE = new CloudStorageManager();
 	private static final int INITIAL_UPDATE_DELAY_TICKS = 50;
-	private static final int BOX_COMMAND_INTERVAL_TICKS = 4;
+	private static final int COMMAND_INTERVAL_TICKS = 4;
 
 	private final Map<String, Long> items = new HashMap<>();
-	private final Deque<String> pendingBoxTakeCommands = new ArrayDeque<>();
+	private final Deque<String> pendingCommands = new ArrayDeque<>();
 	private int initialUpdateCountdown = -1;
-	private int boxCommandCooldown;
+	private int commandCooldown;
 	private boolean initialized;
 
 	private CloudStorageManager() {
@@ -48,11 +48,11 @@ public final class CloudStorageManager {
 		);
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			this.initialUpdateCountdown = -1;
-			this.clearPendingBoxTakeCommands();
+			this.clearPendingCommands();
 			this.clear();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(this::tickInitialUpdate);
-		ClientTickEvents.END_CLIENT_TICK.register(this::tickPendingBoxTakeCommands);
+		ClientTickEvents.END_CLIENT_TICK.register(this::tickPendingCommands);
 	}
 
 	private boolean handleGameMessage(String messageText) {
@@ -129,7 +129,7 @@ public final class CloudStorageManager {
 		}
 
 		this.applyOptimisticTake(itemId, amount);
-		sendTakeCommand(client, "ci get", identifier, amount);
+		this.enqueueCommand("ci get " + identifier.getPath() + " " + amount);
 	}
 
 	public void takeBox(String itemId, int amount) {
@@ -192,34 +192,23 @@ public final class CloudStorageManager {
 				.orElse(-1);
 	}
 
-	private static void sendTakeCommand(
-			Minecraft client,
-			String command,
-			Identifier itemId,
-			int amount
-	) {
-		client.execute(() -> {
-			ClientPacketListener activeConnection = readyConnection(client);
-
-			if (activeConnection != null) {
-				activeConnection.sendCommand(command + " " + itemId.getPath() + " " + amount);
-			}
-		});
-	}
-
 	private void enqueueBoxTakeCommands(Identifier itemId, int amount) {
 		// The server ignores an amount argument for getbox: each command takes exactly one box.
 		for (int i = 0; i < amount; i++) {
-			this.pendingBoxTakeCommands.addLast(itemId.getPath());
+			this.enqueueCommand("ci getbox " + itemId.getPath());
 		}
 	}
 
-	private void tickPendingBoxTakeCommands(Minecraft client) {
-		if (this.boxCommandCooldown > 0) {
-			this.boxCommandCooldown--;
+	private void enqueueCommand(String command) {
+		this.pendingCommands.addLast(command);
+	}
+
+	private void tickPendingCommands(Minecraft client) {
+		if (this.commandCooldown > 0) {
+			this.commandCooldown--;
 		}
 
-		if (this.pendingBoxTakeCommands.isEmpty() || this.boxCommandCooldown > 0) {
+		if (this.pendingCommands.isEmpty() || this.commandCooldown > 0) {
 			return;
 		}
 
@@ -229,14 +218,14 @@ public final class CloudStorageManager {
 			return;
 		}
 
-		// The server rate-limits commands: send at most one getbox command every four ticks (5 per second).
-		connection.sendCommand("ci getbox " + this.pendingBoxTakeCommands.pollFirst());
-		this.boxCommandCooldown = BOX_COMMAND_INTERVAL_TICKS;
+		// The server rate-limits commands: send at most one ci get/getbox every four ticks (5 per second).
+		connection.sendCommand(this.pendingCommands.pollFirst());
+		this.commandCooldown = COMMAND_INTERVAL_TICKS;
 	}
 
-	private void clearPendingBoxTakeCommands() {
-		this.pendingBoxTakeCommands.clear();
-		this.boxCommandCooldown = 0;
+	private void clearPendingCommands() {
+		this.pendingCommands.clear();
+		this.commandCooldown = 0;
 	}
 
 	public void requestUpdate() {

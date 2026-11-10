@@ -46,7 +46,7 @@ public final class CloudStorageConfigGui extends GuiConfigsBase {
 
 	@Override
 	protected int getConfigWidth() {
-		return tab == ConfigTab.DISPLAY || tab == ConfigTab.INTERACTION ? 180 : 220;
+		return tab == ConfigTab.DISPLAY || tab == ConfigTab.INTERACTION || tab == ConfigTab.RESTOCK ? 180 : 220;
 	}
 
 	@Override
@@ -54,6 +54,7 @@ public final class CloudStorageConfigGui extends GuiConfigsBase {
 		List<? extends IConfigBase> configs = switch (tab) {
 			case DISPLAY -> CloudStorageConfigs.Display.OPTIONS;
 			case INTERACTION -> CloudStorageConfigs.Interaction.OPTIONS;
+			case RESTOCK -> CloudStorageConfigs.Restock.OPTIONS;
 			case HOTKEYS -> CloudStorageConfigs.Hotkeys.HOTKEY_LIST;
 			case COMPATIBILITY -> CloudStorageConfigs.Compatibility.OPTIONS;
 		};
@@ -116,6 +117,7 @@ public final class CloudStorageConfigGui extends GuiConfigsBase {
 	private enum ConfigTab {
 		DISPLAY("config.cloudstorage-helper.category.display"),
 		INTERACTION("config.cloudstorage-helper.category.interaction"),
+		RESTOCK("config.cloudstorage-helper.category.restock"),
 		HOTKEYS("config.cloudstorage-helper.category.hotkeys"),
 		COMPATIBILITY("config.cloudstorage-helper.category.compatibility");
 

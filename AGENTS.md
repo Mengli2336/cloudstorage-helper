@@ -75,8 +75,11 @@
   - `core/CloudStorageManager.java`：库存状态、命令发送、乐观扣减。
   - `input/CloudStorageInteractionHandler.java`：准星 / 物品管理器命中与取出。
   - `gui/CustomAmountScreen.java`：自定义数量界面（含潜影盒模式）。
-  - `render/CloudCountRenderer.java`：数量渲染。
-  - `config/CloudStorageConfigs.java`：配置加载与保存（当前 `CONFIG_VERSION = 1`）。
+  - `render/CloudCountRenderer.java`：数量渲染与补货星标角标。
+  - `render/CloudStorageRestockOverlay.java`：容器界面左下角的补货面板（支持缩放与偏移；渲染 + 左键设置 / 右键取消补货）。
+  - `gui/RestockSettingsScreen.java`：单个物品的补货设置（开启/关闭该物品、阈值、目标、立即补一次）。
+  - `core/CloudStorageRestockManager.java`：补货扫描引擎（背包计数、容量判断、扫描间隔、每物品 60 tick 冷却、背包满暂停）。
+  - `config/CloudStorageConfigs.java`：配置加载与保存（当前 `CONFIG_VERSION = 3`，v3 新增补货面板缩放与偏移）。
   - `config/CloudStorageHotkeys.java`、`config/CloudStorageConfigGui.java`：MaLiLib 热键与配置界面。
 - `src/client/java/com/cloudstoragerei/compat/`：可选模组适配，全部通过 `FabricLoader.isModLoaded` 门控。
 - `src/client/resources/*.mixins.json`：REI / JEI 兼容 mixin，由 `plugin` 字段做加载检查，均为 `"required": false`。

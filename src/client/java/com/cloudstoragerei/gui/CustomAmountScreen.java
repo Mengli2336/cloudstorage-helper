@@ -8,7 +8,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 
@@ -80,6 +79,18 @@ public final class CustomAmountScreen extends Screen {
 				)
 				.bounds(this.width / 2 + 5, buttonY, 100, 20)
 				.build());
+		this.addRenderableWidget(Button.builder(
+						Component.translatable("screen.cloudstorage-helper.amount.restock"),
+						button -> this.openRestockSettings()
+				)
+				.bounds(this.width / 2 - 105, buttonY + 24, 210, 20)
+				.build());
+	}
+
+	private void openRestockSettings() {
+		if (this.minecraft != null) {
+			this.minecraft.setScreen(new RestockSettingsScreen(this, this.itemId, this.itemName));
+		}
 	}
 
 	@Override
@@ -179,30 +190,4 @@ public final class CustomAmountScreen extends Screen {
 				: "screen.cloudstorage-helper.amount.mode_item");
 	}
 
-	private static final class NumericEditBox extends EditBox {
-		private NumericEditBox(
-				net.minecraft.client.gui.Font font,
-				int x,
-				int y,
-				int width,
-				int height,
-				Component message
-		) {
-			super(font, x, y, width, height, message);
-		}
-
-		@Override
-		public boolean charTyped(CharacterEvent event) {
-			return Character.isDigit(event.codepoint()) && super.charTyped(event);
-		}
-
-		@Override
-		public void insertText(String text) {
-			String digits = text.replaceAll("\\D", "");
-
-			if (!digits.isEmpty()) {
-				super.insertText(digits);
-			}
-		}
-	}
 }

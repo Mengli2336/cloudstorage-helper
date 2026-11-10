@@ -5,6 +5,8 @@ import com.cloudstoragerei.config.CloudStorageConfigGui;
 import com.cloudstoragerei.config.CloudStorageConfigs;
 import com.cloudstoragerei.config.CloudStorageHotkeys;
 import com.cloudstoragerei.core.CloudStorageManager;
+import com.cloudstoragerei.core.CloudStorageRestockManager;
+import com.cloudstoragerei.render.CloudStorageRestockOverlay;
 
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.interfaces.IInitializationHandler;
@@ -24,5 +26,7 @@ public final class CloudStorageInitHandler implements IInitializationHandler {
 		CloudStorageHotkeys.init();
 		CloudStorageAdapters.initialize();
 		CloudStorageManager.getInstance().initialize();
+		CloudStorageRestockManager.getInstance().initialize();
+		CloudStorageRestockOverlay.initialize();
 	}
 }
